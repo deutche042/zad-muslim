@@ -1,5 +1,4 @@
-
-# React Native Project
+# zad-muslim
 
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using the React Native CLI.
 
@@ -59,7 +58,7 @@ your-project/
 ├── src/                  # JavaScript/TypeScript source code
 │   ├── components/       # Reusable components
 │   ├── screens/         # Screen components
-│   └── App.tsx          # Application entry point
+└── App.tsx          # Application entry point
 ├── __tests__/           # Test files
 ├── .idx/                # IDX configuration
 └── package.json         # Project dependencies and scripts
