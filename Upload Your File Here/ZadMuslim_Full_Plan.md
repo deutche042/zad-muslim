@@ -1647,11 +1647,33 @@ netlify deploy --prod --dir=build
 | 10 | PWA & Performance | 3–4 days |
 | 11 | Animations & Delight | 3–4 days |
 | 12 | QA, Testing & Launch | 4–5 days |
-| **TOTAL** | | **~49–61 days** |
+| **13** | **📱 APK Build & Android Distribution** | **5–7 days** |
+| **TOTAL** | | **~54–68 days** |
 
 ---
 
-## 🔌 COMPLETE APIS REFERENCE
+---
+
+## 📱 NEW REFERENCE APIs — Islamic-APIs Repository
+### Source: https://github.com/alihmada/Islamic-APIs
+> These are the **simplified, production-ready APIs** we'll use for the APK build.
+
+| API | Base URL | Use | Auth |
+|-----|----------|-----|------|
+| Prayer Times | `api.aladhan.com/v1/timingsByCity` | Prayer times by city/country | Free |
+| Prayer Times | `api.aladhan.com/v1/timings` | Prayer times by GPS coords | Free |
+| Quran Text | `api.alquran.cloud/v1/surah/{n}` | 114 surahs, Arabic + translations | Free |
+| Quran Audio | `api.quran.com/api/v4/chapter_recitations/{id}` | MP3 by chapter & reciter | Free |
+| Tafsir | `quranenc.com/api/v1/translation/sura/{lang}/{n}` | Scholarly interpretations | Free |
+| Hadith | `hadis-api-id.vercel.app/hadith/{collection}` | Bukhari, Muslim, etc. | Free |
+| Azkar | `raw.githubusercontent.com/.../azkar.json` | All categorized azkar | Free |
+| Quran Radio | `data-rosy.vercel.app/radio.json` | 18 live radio stations | Free |
+
+**All APIs are FREE, no keys needed, direct GET requests returning JSON/MP3.**
+
+---
+
+## 🔌 COMPLETE APIS REFERENCE (Legacy)
 
 | API | Base URL | Usage | Auth |
 |-----|----------|-------|------|
@@ -1666,6 +1688,216 @@ netlify deploy --prod --dir=build
 | Azkar API | `GitHub: nawafalqari/azkar-api` | All Azkar | Free |
 | Nominatim | `nominatim.openstreetmap.org` | Reverse geocoding | Free |
 | Quran Pages SVG | `mp3quran.net/api/quran_pages_svg` | Mushaf images | Free |
+
+---
+
+## 📦 PHASE 13 — APK Build & Android App Distribution
+### ⏱ 5–7 Days
+> **تحويل المشروع إلى تطبيق Android APK حقيقي يعمل بجميع المميزات**
+
+---
+
+### 13.0 Why APK Instead of PWA?
+| PWA (Web) | APK (Native) |
+|-----------|-------------|
+| Requires browser | Standalone app icon on home screen |
+| Limited background audio | Full background audio service |
+| No GPS permission control | Full GPS + location services |
+| Limited push notifications | Reliable Firebase/local notifications |
+| No offline asset control | Full offline capability |
+| Lower user trust | Professional app store presence |
+
+---
+
+### 13.1 Convert React Web App → Android APK
+
+#### Step 1: Migrate to React Native (Recommended)
+```bash
+# Option A: Clean React Native project
+npx react-native init ZadMuslim --template react-native-template-typescript
+cd ZadMuslim
+
+# Install all required dependencies
+npm install react-native-vector-icons
+npm install react-native-track-player          # Background audio (Quran, Radio)
+npm install react-native-geolocation-service  # GPS for prayer times & Qibla
+npm install react-native-compass              # Device orientation
+npm install react-native-sensors              # Compass + accelerometer
+npm install react-native-push-notification    # Local notifications
+npm install react-native-mmkv                 # Fast storage
+npm install react-native-svg                  # Islamic patterns
+npm install react-native-linear-gradient      # Gradient backgrounds
+npm install react-native-lottie             # Lottie animations
+npm install axios zustand                     # State management
+npm install moment-hijri date-fns             # Date utilities
+npm install react-native-reanimated           # Animations
+npm install react-native-gesture-handler      # Touch handling
+npm install react-native-background-timer     # Background tasks
+npm install react-native-fs                   # File system access
+npm install react-native-share                # Share verse cards
+```
+
+#### Step 2: Migrate Core Components
+```
+Web Component                     → Native Equivalent
+────────────────────────────────────────────────────────────
+<div> / <span>                   → <View> / <Text>
+<img>                             → <Image>
+<audio> / Howler.js              → react-native-track-player
+navigator.geolocation             → react-native-geolocation-service
+DeviceOrientation API            → react-native-sensors
+localStorage / IndexedDB         → react-native-mmkv
+CSS Animations                   → react-native-reanimated
+Lottie (Web)                     → react-native-lottie
+Service Worker (PWA)             → react-native-background-timer
+Canvas (Share Cards)             → react-native-view-shot
+Push Notifications               → react-native-push-notification
+```
+
+#### Step 3: APK-Specific Configurations
+
+**Android Permissions** (`android/app/src/main/AndroidManifest.xml`):
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Location for prayer times & Qibla -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+  <!-- Background audio for Quran/radio -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+  <!-- Notifications -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+  <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+  <!-- Vibration for tasbeeh -->
+  <uses-permission android:name="android.permission.VIBRATE" />
+
+  <!-- Internet -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+  <!-- Boot auto-start for notifications -->
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+</manifest>
+```
+
+**Background Audio Service** (`android/app/src/main/java/.../PlaybackService.java`):
+```java
+// For Quran playback when app is minimized
+public class PlaybackService extends TrackPlayerService {
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    // Setup media session for lock screen controls
+  }
+}
+```
+
+#### Step 4: Build Signed APK
+
+```bash
+# Generate keystore (one time only)
+keytool -genkeypair -v -storetype PKCS12 -keystore zad-muslim-release-key.keystore \
+  -alias zad-muslim-key -keyalg RSA -keysize 2048 -validity 10000
+
+# Place keystore in android/app/
+
+# Edit android/app/build.gradle
+android {
+  signingConfigs {
+    release {
+      storeFile file('zad-muslim-release-key.keystore')
+      storePassword 'YOUR_PASSWORD'
+      keyAlias 'zad-muslim-key'
+      keyPassword 'YOUR_PASSWORD'
+    }
+  }
+  buildTypes {
+    release {
+      signingConfig signingConfigs.release
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+}
+
+# Build APK
+cd android && ./gradlew assembleRelease
+
+# Build App Bundle (for Play Store)
+cd android && ./gradlew bundleRelease
+```
+
+#### Step 5: Test APK
+```bash
+# Install on connected device
+adb install app/build/outputs/apk/release/app-release.apk
+
+# Test all features:
+# ✅ Quran reader + audio playback
+# ✅ Prayer times (GPS + manual)
+# ✅ Adhan notifications
+# ✅ Qibla compass
+# ✅ Azkar + tasbeeh counter
+# ✅ Hadith of the day
+# ✅ Hijri calendar
+# ✅ Radio streaming
+# ✅ Ramadan mode
+# ✅ Salawat counter
+# ✅ Daily goals
+# ✅ Settings (language, theme)
+# ✅ Offline mode
+```
+
+#### Step 6: Upload to GitHub
+```bash
+# Add APK to repo
+mkdir -p releases
+cp android/app/build/outputs/apk/release/app-release.apk releases/zad-muslim-v1.0.0.apk
+
+# Commit & push
+git add releases/
+git commit -m "📱 Release: Zad Muslim v1.0.0 APK"
+git push origin main
+
+# Create GitHub Release
+# → Go to https://github.com/deutche042/zad-muslim/releases/new
+# → Tag: v1.0.0
+# → Upload: app-release.apk
+# → Title: "Zad Muslim — Initial Release"
+# → Description: Full feature list
+```
+
+---
+
+### 13.2 APK File Structure
+```
+releases/
+├── zad-muslim-v1.0.0.apk          ← Release APK
+├── app-release.aab                 ← App Bundle (Play Store)
+├── zad-muslim-release-key.keystore ← Signing key (KEEP SAFE!)
+└── changelog.md                    ← Version notes
+```
+
+### 13.3 APK Size Optimization
+| Technique | Size Reduction |
+|-----------|---------------|
+| ProGuard / RTree | ~30% |
+| Split APKs (per ABI) | ~40% |
+| Compress assets | ~15% |
+| Remove unused fonts | ~5% |
+| **Target APK Size** | **< 25 MB** |
+
+### 13.4 Distribution Options
+| Platform | Method | Cost |
+|----------|--------|------|
+| GitHub Releases | Direct APK download | Free |
+| Google Play Store | App Bundle (AAB) | $25 one-time |
+| F-Droid | Open source catalog | Free |
+| Direct (Website) | APK file hosting | Free |
 
 ---
 
@@ -1688,6 +1920,25 @@ netlify deploy --prod --dir=build
 | Confetti | canvas-confetti |
 | Compass | DeviceOrientation API |
 | Deployment | Vercel / Firebase |
+
+---
+
+## 💎 APK TECH STACK (Native Android)
+
+| Category | Technology |
+|----------|-----------|
+| Framework | React Native (CLI) |
+| Audio | react-native-track-player (background) |
+| GPS | react-native-geolocation-service |
+| Compass | react-native-sensors |
+| Notifications | react-native-push-notification |
+| Storage | react-native-mmkv |
+| Animations | react-native-reanimated |
+| Lottie | react-native-lottie |
+| Share Cards | react-native-view-shot |
+| Islamic APIs | alihmada/Islamic-APIs |
+| Build Tool | Gradle |
+| Distribution | GitHub Releases + Play Store |
 
 ---
 
