@@ -1,0 +1,26 @@
+# Android Studio
+.idea/
+*.iml
+.gradle/
+local.properties
+
+# Keystore files
+*.jks
+*.keystore
+
+# Built files
+*.apk
+*.aab
+*.ap_
+
+# OS files
+.DS_Store
+
+# Node
+node_modules/
+
+# Metro
+.metro-health-check*
+
+# Logs
+*.log
